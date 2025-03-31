@@ -20,8 +20,6 @@ RM := rm -rf
 -include components/ccledmng/src/subdir.mk
 -include components/ccdisplaysmng/src/subdir.mk
 -include subdir.mk
--include objects.mk
-
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(C++_DEPS)),)
 -include $(C++_DEPS)
@@ -65,7 +63,7 @@ all: main-build
 main-build: edroom_ej_nexys_project_23_24
 
 # Tool invocations
-edroom_ej_nexys_project_23_24: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+edroom_ej_nexys_project_23_24: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
 	sparc-rtems-g++ -msoft-float -o "edroom_ej_nexys_project_23_24" $(OBJS) $(USER_OBJS) $(LIBS)
