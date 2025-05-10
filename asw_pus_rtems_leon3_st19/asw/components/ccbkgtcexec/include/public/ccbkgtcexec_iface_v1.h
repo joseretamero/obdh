@@ -14,12 +14,6 @@
 #include <public/cdtchandler_iface_v1.h>
 
 
-//******************************************************************************
-// Required software interfaces
-
-#include <public/pus_services_iface_v1.h>
-
-
 /**
  * \class   CCBKGTCExec
  *
@@ -76,8 +70,8 @@ public:
 	//******************  Component Communication Ports *******************
 	// ********************************************************************
 
-	//! BKGExecCtrl Component Port
-	CEDROOMInterface	BKGExecCtrl;
+	//! CPBKGExecCtrl Component Port
+	CEDROOMInterface	CPBKGExecCtrl;
 
 
 
@@ -161,7 +155,7 @@ public:
 		CEDROOMMessage * &MsgBack;
 
 		//!Component ports
-		CEDROOMInterface & BKGExecCtrl;
+		CEDROOMInterface & CPBKGExecCtrl;
 
 
 		//! State Identifiers

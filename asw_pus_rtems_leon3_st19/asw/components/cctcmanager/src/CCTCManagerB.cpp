@@ -19,7 +19,7 @@ CCTCManager::EDROOM_CTX_Top_0::EDROOM_CTX_Top_0(CCTCManager &act,
 	EDROOMcomponent(act),
 	Msg(EDROOMcomponent.Msg),
 	MsgBack(EDROOMcomponent.MsgBack),
-	BKGExecCtrl(EDROOMcomponent.BKGExecCtrl),
+	CPBKGExecCtrl(EDROOMcomponent.CPBKGExecCtrl),
 	HK_FDIRCtrl(EDROOMcomponent.HK_FDIRCtrl),
 	RxTC(EDROOMcomponent.RxTC),
 	VAcceptReport(EDROOMpVarVAcceptReport),
@@ -34,7 +34,7 @@ CCTCManager::EDROOM_CTX_Top_0::EDROOM_CTX_Top_0(EDROOM_CTX_Top_0 &context):
 	EDROOMcomponent(context.EDROOMcomponent),
 	Msg(context.Msg),
 	MsgBack(context.MsgBack),
-	BKGExecCtrl(context.BKGExecCtrl),
+	CPBKGExecCtrl(context.CPBKGExecCtrl),
 	HK_FDIRCtrl(context.HK_FDIRCtrl),
 	RxTC(context.RxTC),
 	VAcceptReport(context.VAcceptReport),
@@ -81,6 +81,21 @@ VCurrentTC.ExecTC();
 
 
 
+void	CCTCManager::EDROOM_CTX_Top_0::FFwdBKGTC()
+
+{
+   //Allocate data from pool
+  CDTCHandler * pSBKGTC_Data = EDROOMPoolCDTCHandler.AllocData();
+	
+		// Complete Data 
+	
+	*pSBKGTC_Data= VCurrentTC;
+   //Send message 
+   CPBKGExecCtrl.send(SBKGTC,pSBKGTC_Data,&EDROOMPoolCDTCHandler); 
+}
+
+
+
 void	CCTCManager::EDROOM_CTX_Top_0::FFwdHK_FDIRTC()
 
 {
@@ -92,39 +107,6 @@ void	CCTCManager::EDROOM_CTX_Top_0::FFwdHK_FDIRTC()
 *pSHK_FDIR_TC_Data=VCurrentTC;   
    //Send message 
    HK_FDIRCtrl.send(SHK_FDIR_TC,pSHK_FDIR_TC_Data,&EDROOMPoolCDTCHandler); 
-}
-
-
-
-void	CCTCManager::EDROOM_CTX_Top_0::FFwdToBKGTCExec()
-
-{
-   //Allocate data from pool
-  CDTCHandler * pSBKGTC_Data = EDROOMPoolCDTCHandler.AllocData();
-	
-		// Complete Data 
-	
-	*pSBKGTC_Data=VCurrentTC;  
-   //Send message 
-   BKGExecCtrl.send(SBKGTC,pSBKGTC_Data,&EDROOMPoolCDTCHandler); 
-}
-
-
-
-void	CCTCManager::EDROOM_CTX_Top_0::FGetEvAction()
-
-{
-   //Handle Msg->data
-  CDEvAction & varSEvAction = *(CDEvAction *)Msg->data;
-	
-		// Data access
-		
-	
-VCurrentTC=varSEvAction.GetActionTCHandler();
- 
- 
- 
-
 }
 
 
@@ -216,7 +198,7 @@ return VAcceptReport.IsAccepted();
 
 
 
-bool	CCTCManager::EDROOM_CTX_Top_0::GFwdToBKGTCExec()
+bool	CCTCManager::EDROOM_CTX_Top_0::GFwdToBKG()
 
 {
 
@@ -346,13 +328,6 @@ void CCTCManager::EDROOM_SUB_Top_0::EDROOMBehaviour()
 					edroomNextState = Ready;
 				 } 
 				break;
-			//Next Transition is NewEvAction
-			case (NewEvAction):
-				//Msg->Data Handling 
-				FGetEvAction();
-				//Next State is ValidTC
-				edroomNextState = ValidTC;
-				break;
 			//To Choice Point HandleTC
 			case (HandleTC):
 
@@ -384,15 +359,13 @@ void CCTCManager::EDROOM_SUB_Top_0::EDROOMBehaviour()
 					//Next State is Ready
 					edroomNextState = Ready;
 				 } 
-				//Evaluate Branch FwdToBKGTCExec
-				else if( GFwdToBKGTCExec() )
+				//Evaluate Branch FwdBKGTC
+				else if( GFwdToBKG() )
 				{
-					//Send Asynchronous Message 
-					FFwdToBKGTCExec();
 
-					//Branch taken is HandleTC_FwdToBKGTCExec
+					//Branch taken is HandleTC_FwdBKGTC
 					edroomCurrentTrans.localId =
-						HandleTC_FwdToBKGTCExec;
+						HandleTC_FwdBKGTC;
 
 					//Next State is Ready
 					edroomNextState = Ready;
@@ -539,19 +512,6 @@ TEDROOMTransId CCTCManager::EDROOM_SUB_Top_0::EDROOMReadyArrival()
 					//Next transition is  NewRxTC
 					edroomCurrentTrans.localId = NewRxTC;
 					edroomCurrentTrans.distanceToContext = 0 ;
-					edroomValidMsg=true;
-				 }
-
-				break;
-
-			case (SEvAction): 
-
-				 if (*Msg->GetPInterface() == HK_FDIRCtrl)
-				{
-
-					//Next transition is  NewEvAction
-					edroomCurrentTrans.localId= NewEvAction;
-					edroomCurrentTrans.distanceToContext = 0;
 					edroomValidMsg=true;
 				 }
 

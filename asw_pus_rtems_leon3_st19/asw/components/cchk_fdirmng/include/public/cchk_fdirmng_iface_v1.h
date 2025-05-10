@@ -12,7 +12,6 @@
 // Data Classes
 
 #include <public/cdtchandler_iface_v1.h>
-#include <public/cdevaction_iface_v1.h>
 
 
 //******************************************************************************
@@ -36,8 +35,7 @@ public:
 	 */
 	 enum TEDROOMCCHK_FDIRMngSignal { EDROOMSignalTimeout, 
 							EDROOMSignalDestroy, 
-							SHK_FDIR_TC, 
-							SEvAction };
+							SHK_FDIR_TC };
 
 	/**
 	 * \class CCHK_FDIRMng::CEDROOMMemory
@@ -67,14 +65,6 @@ public:
 			//!Component Timing Service Memory Object
 			CEDROOMTimingMemory TimingMemory;
 
-	// ********************************************************************
-	// ******************* Component Message Data Pools *******************
-	// ********************************************************************
-
-			//! CDEvAction Data Pool Memory
-			CDEvAction	poolCDEvAction[4+1];
-			//! CDEvAction Data Pool Marks Memory
-			bool	poolMarkCDEvAction[4];
 
 
 			/** \brief This function is used for setting the Component Memory
@@ -182,8 +172,7 @@ public:
 	 */
 	enum TEDROOMCCHK_FDIRMngSignal { EDROOMSignalTimeout,
 		EDROOMSignalDestroy,
-		SHK_FDIR_TC,
-		SEvAction };
+		SHK_FDIR_TC };
 
 
 		friend class CCHK_FDIRMng;
@@ -210,8 +199,6 @@ public:
 		enum TEDROOMTransitionID{Init,
 			ExecTC,
 			DoHK_FDIR,
-			DoHK_FDIR_PendingEvAction,
-			DoHK_FDIR_NoEvAction,
 			EDROOMMemoryTrans };
 
 
@@ -220,20 +207,11 @@ public:
 		Pr_Time &VNextTimeout;
 
 
-		// Pools *************************************************
-
-		class CEDROOMPOOLCDEvAction:public CEDROOMProtectedMemoryPool {
-			public:
-			CEDROOMPOOLCDEvAction(TEDROOMUInt32 elemCount,CDEvAction *pMem, bool *pMarks);
-			CDEvAction	* AllocData();
-		};
-		CEDROOMPOOLCDEvAction	& EDROOMPoolCDEvAction;
 
 
 		//!Constructor
 		EDROOM_CTX_Top_0 (CCHK_FDIRMng &act,
-				Pr_Time & EDROOMpVarVNextTimeout,
-				CEDROOMPOOLCDEvAction & EDROOMpPoolCDEvAction );
+				Pr_Time & EDROOMpVarVNextTimeout );
 
 		//!Copy constructor
 		EDROOM_CTX_Top_0 (EDROOM_CTX_Top_0 &context);
@@ -276,17 +254,7 @@ public:
 		/**
 		 * \brief  
 		 */
-		void	FFwdEvAction();
-
-		/**
-		 * \brief  
-		 */
 		void	FInitHK_FDIR();
-
-		/**
-		 * \brief  
-		 */
-		bool	GPendingEvAction();
 
 	};
 
@@ -314,14 +282,12 @@ public:
 		Pr_Time VNextTimeout;
 
 
-		// Pools**************************************************
-		CEDROOMPOOLCDEvAction	EDROOMPoolCDEvAction;
 
 
 	public:
 
 		//! Constructor
-		EDROOM_SUB_Top_0 (CCHK_FDIRMng &act, CEDROOMMemory *pEDROOMMemory  );
+		EDROOM_SUB_Top_0 (CCHK_FDIRMng &act );
 
 
 		//! Top Context Behaviour 

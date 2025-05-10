@@ -11,16 +11,14 @@
 	// CONSTRUCTORS***********************************************
 
 CCHK_FDIRMng::EDROOM_CTX_Top_0::EDROOM_CTX_Top_0(CCHK_FDIRMng &act,
-	 Pr_Time & EDROOMpVarVNextTimeout,
-	 CEDROOMPOOLCDEvAction & EDROOMpPoolCDEvAction ):
+	 Pr_Time & EDROOMpVarVNextTimeout ):
 
 	EDROOMcomponent(act),
 	Msg(EDROOMcomponent.Msg),
 	MsgBack(EDROOMcomponent.MsgBack),
 	HK_FDIRCtrl(EDROOMcomponent.HK_FDIRCtrl),
 	HK_FDIRTimer(EDROOMcomponent.HK_FDIRTimer),
-	VNextTimeout(EDROOMpVarVNextTimeout),
-	EDROOMPoolCDEvAction(EDROOMpPoolCDEvAction)
+	VNextTimeout(EDROOMpVarVNextTimeout)
 {
 }
 
@@ -31,8 +29,7 @@ CCHK_FDIRMng::EDROOM_CTX_Top_0::EDROOM_CTX_Top_0(EDROOM_CTX_Top_0 &context):
 	MsgBack(context.MsgBack),
 	HK_FDIRCtrl(context.HK_FDIRCtrl),
 	HK_FDIRTimer(context.HK_FDIRTimer),
-	VNextTimeout(context.VNextTimeout),
-	EDROOMPoolCDEvAction(context.EDROOMPoolCDEvAction )
+	VNextTimeout(context.VNextTimeout)
 {
 
 }
@@ -73,8 +70,12 @@ VNextTimeout+= Pr_Time(1,0); // Add X sec + Y microsec
 time=VNextTimeout; 
  
 pus_services_update_params();
+ 
 pus_service4_update_all_stats();
+ 
+ 
 pus_service3_do_HK();
+ 
 pus_services_do_FDIR();
    //Program absolute timer 
    HK_FDIRTimer.InformAt( time ); 
@@ -90,22 +91,6 @@ void	CCHK_FDIRMng::EDROOM_CTX_Top_0::FExecHK_FDIR_TC()
  
 varSHK_FDIR_TC.ExecTC();
 
-}
-
-
-
-void	CCHK_FDIRMng::EDROOM_CTX_Top_0::FFwdEvAction()
-
-{
-   //Allocate data from pool
-  CDEvAction * pSEvAction_Data = EDROOMPoolCDEvAction.AllocData();
-	
-		// Complete Data 
-	
- 
-pSEvAction_Data->ExtractEvActionFromQueue();
-   //Send message 
-   HK_FDIRCtrl.send(SEvAction,pSEvAction_Data,&EDROOMPoolCDEvAction); 
 }
 
 
@@ -127,33 +112,7 @@ VNextTimeout=time;
 
 
 
-bool	CCHK_FDIRMng::EDROOM_CTX_Top_0::GPendingEvAction()
-
-{
-
-//return (false);
-return (pus_service19_pending_ev_actions()); 
- 
-
-}
-
-
-
 	//********************************** Pools *************************************
-
-	//CEDROOMPOOLCDEvAction
-
-CCHK_FDIRMng::EDROOM_CTX_Top_0::CEDROOMPOOLCDEvAction::CEDROOMPOOLCDEvAction(
-			TEDROOMUInt32 elemCount,CDEvAction* pMem,bool * pMemMarks):
-				CEDROOMProtectedMemoryPool(elemCount, pMem, pMemMarks,
-					sizeof(CDEvAction))
-{
-}
-
-CDEvAction *	CCHK_FDIRMng::EDROOM_CTX_Top_0::CEDROOMPOOLCDEvAction::AllocData()
-{
-	return(CDEvAction*)CEDROOMProtectedMemoryPool::AllocData();
-}
 
 
 
@@ -167,14 +126,9 @@ CDEvAction *	CCHK_FDIRMng::EDROOM_CTX_Top_0::CEDROOMPOOLCDEvAction::AllocData()
 
 	// CONSTRUCTOR*************************************************
 
-CCHK_FDIRMng::EDROOM_SUB_Top_0::EDROOM_SUB_Top_0 (CCHK_FDIRMng&act
-	,CEDROOMMemory *pEDROOMMemory):
+CCHK_FDIRMng::EDROOM_SUB_Top_0::EDROOM_SUB_Top_0 (CCHK_FDIRMng&act):
 		EDROOM_CTX_Top_0(act,
-			VNextTimeout,
-			EDROOMPoolCDEvAction),
-		EDROOMPoolCDEvAction(
-			4, pEDROOMMemory->poolCDEvAction,
-			pEDROOMMemory->poolMarkCDEvAction)
+			VNextTimeout)
 {
 
 }
@@ -212,35 +166,12 @@ void CCHK_FDIRMng::EDROOM_SUB_Top_0::EDROOMBehaviour()
 				//Next State is Ready
 				edroomNextState = Ready;
 				break;
-			//To Choice Point DoHK_FDIR
+			//Next Transition is DoHK_FDIR
 			case (DoHK_FDIR):
-
 				//Execute Action 
 				FDoHK_FDIR();
-				//Evaluate Branch PendingEvAction
-				if( GPendingEvAction() )
-				{
-					//Send Asynchronous Message 
-					FFwdEvAction();
-
-					//Branch taken is DoHK_FDIR_PendingEvAction
-					edroomCurrentTrans.localId =
-						DoHK_FDIR_PendingEvAction;
-
-					//Next State is Ready
-					edroomNextState = Ready;
-				 } 
-				//Default Branch NoEvAction
-				else
-				{
-
-					//Branch taken is DoHK_FDIR_NoEvAction
-					edroomCurrentTrans.localId =
-						DoHK_FDIR_NoEvAction;
-
-					//Next State is Ready
-					edroomNextState = Ready;
-				 } 
+				//Next State is Ready
+				edroomNextState = Ready;
 				break;
 		}
 
@@ -345,8 +276,8 @@ TEDROOMTransId CCHK_FDIRMng::EDROOM_SUB_Top_0::EDROOMReadyArrival()
 				{
 
 					//Next transition is  DoHK_FDIR
-					edroomCurrentTrans.localId = DoHK_FDIR;
-					edroomCurrentTrans.distanceToContext = 0 ;
+					edroomCurrentTrans.localId= DoHK_FDIR;
+					edroomCurrentTrans.distanceToContext = 0;
 					edroomValidMsg=true;
 				 }
 

@@ -15,7 +15,6 @@
 #include <public/cdtcexecctrl_iface_v1.h>
 #include <public/cdtchandler_iface_v1.h>
 #include <public/cdtcmemdescriptor_iface_v1.h>
-#include <public/cdevaction_iface_v1.h>
 
 
 //******************************************************************************
@@ -40,10 +39,9 @@ public:
 	 */
 	 enum TEDROOMCCTCManagerSignal { EDROOMSignalTimeout, 
 							EDROOMSignalDestroy, 
-							EDROOMIRQsignal, 
 							SBKGTC, 
-							SHK_FDIR_TC, 
-							SEvAction };
+							EDROOMIRQsignal, 
+							SHK_FDIR_TC };
 
 	/**
 	 * \class CCTCManager::CEDROOMMemory
@@ -92,8 +90,8 @@ public:
 	//******************  Component Communication Ports *******************
 	// ********************************************************************
 
-	//! BKGExecCtrl Component Port
-	CEDROOMInterface	BKGExecCtrl;
+	//! CPBKGExecCtrl Component Port
+	CEDROOMInterface	CPBKGExecCtrl;
 	//! HK_FDIRCtrl Component Port
 	CEDROOMInterface	HK_FDIRCtrl;
 
@@ -209,10 +207,9 @@ public:
 	 */
 	enum TEDROOMCCTCManagerSignal { EDROOMSignalTimeout,
 		EDROOMSignalDestroy,
-		EDROOMIRQsignal,
 		SBKGTC,
-		SHK_FDIR_TC,
-		SEvAction };
+		EDROOMIRQsignal,
+		SHK_FDIR_TC };
 
 
 		friend class CCTCManager;
@@ -227,7 +224,7 @@ public:
 		CEDROOMMessage * &MsgBack;
 
 		//!Component ports
-		CEDROOMInterface & BKGExecCtrl;
+		CEDROOMInterface & CPBKGExecCtrl;
 		CEDROOMInterface & HK_FDIRCtrl;
 		CEDROOMIRQInterface & RxTC;
 
@@ -246,9 +243,8 @@ public:
 			HandleTC,
 			HandleTC_ToReboot,
 			HandleTC_FwdHK_FDIRTC,
-			HandleTC_FwdToBKGTCExec,
+			HandleTC_FwdBKGTC,
 			HandleTC_ExecPrioTC,
-			NewEvAction,
 			EDROOMMemoryTrans };
 
 
@@ -312,17 +308,12 @@ public:
 		/**
 		 * \brief  
 		 */
+		void	FFwdBKGTC();
+
+		/**
+		 * \brief  
+		 */
 		void	FFwdHK_FDIRTC();
-
-		/**
-		 * \brief  
-		 */
-		void	FFwdToBKGTCExec();
-
-		/**
-		 * \brief  
-		 */
-		void	FGetEvAction();
 
 		/**
 		 * \brief  
@@ -362,7 +353,7 @@ public:
 		/**
 		 * \brief  
 		 */
-		bool	GFwdToBKGTCExec();
+		bool	GFwdToBKG();
 
 		/**
 		 * \brief  
