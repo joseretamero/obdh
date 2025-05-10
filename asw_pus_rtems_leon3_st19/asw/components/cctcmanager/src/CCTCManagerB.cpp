@@ -228,6 +228,20 @@ return VTCExecCtrl.IsRebootTC();
 
 
 
+void	CCTCManager::EDROOM_CTX_Top_0::FGetEvAction()
+
+{
+   //Handle Msg->data
+  CDEvAction & varSEvAction = *(CDEvAction *)Msg->data;
+	
+		// Data access
+	
+	VCurrentTC=varSEvAction.GetActionTCHandler();
+
+}
+
+
+
 	//********************************** Pools *************************************
 
 	//CEDROOMPOOLCDTCHandler
@@ -327,6 +341,13 @@ void CCTCManager::EDROOM_SUB_Top_0::EDROOMBehaviour()
 					//Next State is Ready
 					edroomNextState = Ready;
 				 } 
+				break;
+			//Next Transition is NewEvAction
+			case (NewEvAction):
+				//Msg->Data Handling 
+				FGetEvAction();
+				//Next State is ValidTC
+				edroomNextState = ValidTC;
 				break;
 			//To Choice Point HandleTC
 			case (HandleTC):
@@ -512,6 +533,19 @@ TEDROOMTransId CCTCManager::EDROOM_SUB_Top_0::EDROOMReadyArrival()
 					//Next transition is  NewRxTC
 					edroomCurrentTrans.localId = NewRxTC;
 					edroomCurrentTrans.distanceToContext = 0 ;
+					edroomValidMsg=true;
+				 }
+
+				break;
+
+			case (SEvAction): 
+
+				 if (*Msg->GetPInterface() == HK_FDIRCtrl)
+				{
+
+					//Next transition is  NewEvAction
+					edroomCurrentTrans.localId= NewEvAction;
+					edroomCurrentTrans.distanceToContext = 0;
 					edroomValidMsg=true;
 				 }
 

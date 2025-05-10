@@ -98,6 +98,8 @@ TEDROOMSignal CEDROOMSystemCommSAP::C3HK_FDIRMng_PHK_FDIRCtrl__C2TCManager_PHK_F
  
 	switch(signalOut){
  
+		case( CCHK_FDIRMng::SEvAction):	 signalIn=CCTCManager::SEvAction; break;
+ 
 		default: signalIn=(TEDROOMSignal)(-1); break;
  
 	}

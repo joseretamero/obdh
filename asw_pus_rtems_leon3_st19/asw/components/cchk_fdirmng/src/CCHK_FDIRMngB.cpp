@@ -11,14 +11,16 @@
 	// CONSTRUCTORS***********************************************
 
 CCHK_FDIRMng::EDROOM_CTX_Top_0::EDROOM_CTX_Top_0(CCHK_FDIRMng &act,
-	 Pr_Time & EDROOMpVarVNextTimeout ):
+	 Pr_Time & EDROOMpVarVNextTimeout,
+	 CEDROOMPOOLCDEvAction & EDROOMpPoolCDEvAction ):
 
 	EDROOMcomponent(act),
 	Msg(EDROOMcomponent.Msg),
 	MsgBack(EDROOMcomponent.MsgBack),
 	HK_FDIRCtrl(EDROOMcomponent.HK_FDIRCtrl),
 	HK_FDIRTimer(EDROOMcomponent.HK_FDIRTimer),
-	VNextTimeout(EDROOMpVarVNextTimeout)
+	VNextTimeout(EDROOMpVarVNextTimeout),
+	EDROOMPoolCDEvAction(EDROOMpPoolCDEvAction)
 {
 }
 
@@ -29,7 +31,8 @@ CCHK_FDIRMng::EDROOM_CTX_Top_0::EDROOM_CTX_Top_0(EDROOM_CTX_Top_0 &context):
 	MsgBack(context.MsgBack),
 	HK_FDIRCtrl(context.HK_FDIRCtrl),
 	HK_FDIRTimer(context.HK_FDIRTimer),
-	VNextTimeout(context.VNextTimeout)
+	VNextTimeout(context.VNextTimeout),
+	EDROOMPoolCDEvAction(context.EDROOMPoolCDEvAction )
 {
 
 }
@@ -112,7 +115,46 @@ VNextTimeout=time;
 
 
 
+bool	CCHK_FDIRMng::EDROOM_CTX_Top_0::GPendingEvAction()
+
+{
+
+return (pus_service19_pending_ev_actions());
+
+}
+
+
+
+void	CCHK_FDIRMng::EDROOM_CTX_Top_0::FFwdEvAction()
+
+{
+   //Allocate data from pool
+  CDEvAction * pSEvAction_Data = EDROOMPoolCDEvAction.AllocData();
+	
+		// Complete Data 
+	
+	pSEvAction_Data= ExtractEvActionFromQueue();
+   //Send message 
+   HK_FDIRCtrl.send(SEvAction,pSEvAction_Data,&EDROOMPoolCDEvAction); 
+}
+
+
+
 	//********************************** Pools *************************************
+
+	//CEDROOMPOOLCDEvAction
+
+CCHK_FDIRMng::EDROOM_CTX_Top_0::CEDROOMPOOLCDEvAction::CEDROOMPOOLCDEvAction(
+			TEDROOMUInt32 elemCount,CDEvAction* pMem,bool * pMemMarks):
+				CEDROOMProtectedMemoryPool(elemCount, pMem, pMemMarks,
+					sizeof(CDEvAction))
+{
+}
+
+CDEvAction *	CCHK_FDIRMng::EDROOM_CTX_Top_0::CEDROOMPOOLCDEvAction::AllocData()
+{
+	return(CDEvAction*)CEDROOMProtectedMemoryPool::AllocData();
+}
 
 
 
@@ -126,9 +168,14 @@ VNextTimeout=time;
 
 	// CONSTRUCTOR*************************************************
 
-CCHK_FDIRMng::EDROOM_SUB_Top_0::EDROOM_SUB_Top_0 (CCHK_FDIRMng&act):
+CCHK_FDIRMng::EDROOM_SUB_Top_0::EDROOM_SUB_Top_0 (CCHK_FDIRMng&act
+	,CEDROOMMemory *pEDROOMMemory):
 		EDROOM_CTX_Top_0(act,
-			VNextTimeout)
+			VNextTimeout,
+			EDROOMPoolCDEvAction),
+		EDROOMPoolCDEvAction(
+			5, pEDROOMMemory->poolCDEvAction,
+			pEDROOMMemory->poolMarkCDEvAction)
 {
 
 }
@@ -166,12 +213,35 @@ void CCHK_FDIRMng::EDROOM_SUB_Top_0::EDROOMBehaviour()
 				//Next State is Ready
 				edroomNextState = Ready;
 				break;
-			//Next Transition is DoHK_FDIR
+			//To Choice Point DoHK_FDIR
 			case (DoHK_FDIR):
+
 				//Execute Action 
 				FDoHK_FDIR();
-				//Next State is Ready
-				edroomNextState = Ready;
+				//Evaluate Branch PendingEvAction
+				if( GPendingEvAction() )
+				{
+					//Send Asynchronous Message 
+					FFwdEvAction();
+
+					//Branch taken is DoHK_FDIR_PendingEvAction
+					edroomCurrentTrans.localId =
+						DoHK_FDIR_PendingEvAction;
+
+					//Next State is Ready
+					edroomNextState = Ready;
+				 } 
+				//Default Branch NoEvAction
+				else
+				{
+
+					//Branch taken is DoHK_FDIR_NoEvAction
+					edroomCurrentTrans.localId =
+						DoHK_FDIR_NoEvAction;
+
+					//Next State is Ready
+					edroomNextState = Ready;
+				 } 
 				break;
 		}
 
@@ -276,8 +346,8 @@ TEDROOMTransId CCHK_FDIRMng::EDROOM_SUB_Top_0::EDROOMReadyArrival()
 				{
 
 					//Next transition is  DoHK_FDIR
-					edroomCurrentTrans.localId= DoHK_FDIR;
-					edroomCurrentTrans.distanceToContext = 0;
+					edroomCurrentTrans.localId = DoHK_FDIR;
+					edroomCurrentTrans.distanceToContext = 0 ;
 					edroomValidMsg=true;
 				 }
 

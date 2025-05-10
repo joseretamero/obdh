@@ -11,6 +11,7 @@
 //******************************************************************************
 // Data Classes
 
+#include <public/cdevaction_iface_v1.h>
 #include <public/cdtcacceptreport_iface_v1.h>
 #include <public/cdtcexecctrl_iface_v1.h>
 #include <public/cdtchandler_iface_v1.h>
@@ -41,7 +42,8 @@ public:
 							EDROOMSignalDestroy, 
 							SBKGTC, 
 							EDROOMIRQsignal, 
-							SHK_FDIR_TC };
+							SHK_FDIR_TC, 
+							SEvAction };
 
 	/**
 	 * \class CCTCManager::CEDROOMMemory
@@ -209,7 +211,8 @@ public:
 		EDROOMSignalDestroy,
 		SBKGTC,
 		EDROOMIRQsignal,
-		SHK_FDIR_TC };
+		SHK_FDIR_TC,
+		SEvAction };
 
 
 		friend class CCTCManager;
@@ -245,6 +248,7 @@ public:
 			HandleTC_FwdHK_FDIRTC,
 			HandleTC_FwdBKGTC,
 			HandleTC_ExecPrioTC,
+			NewEvAction,
 			EDROOMMemoryTrans };
 
 
@@ -364,6 +368,11 @@ public:
 		 * \brief  
 		 */
 		bool	GToReboot();
+
+		/**
+		 * \brief 
+		 */
+		void	FGetEvAction();
 
 	};
 
