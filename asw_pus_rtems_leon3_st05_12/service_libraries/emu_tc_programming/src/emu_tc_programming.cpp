@@ -28,7 +28,7 @@
 #include <public/emu_sc_channel_drv_v1.h>
 #include <public/emu_gss_v1.h>
 
-//TODO 14 Execute FT_UAH_ASW_Monitoring_0100 and check log with expected log
+//DONE14 Execute FT_UAH_ASW_Monitoring_0100 and check log with expected log
 #define FT_UAH_ASW_Monitoring_0100
 //#define FT_UAH_ASW_Monitoring_EvDisabled_0110
 //#define FT_UAH_ASW_Monitoring_MaskedValue_0120
@@ -59,7 +59,7 @@ EmuGSS_TCProgram20_3_uint8 prog_FT_0100_step_4(FT_0100_TIME_step4,
 
 #endif
 
-//TODO 15 CREATE TEST FT_UAH_ASW_Monitoring_EvDisabled_0110
+//DONE 15 CREATE TEST FT_UAH_ASW_Monitoring_EvDisabled_0110
 //Same steps than FT_UAH_ASW_Monitoring_0100 but use
 //EmuGSS_TCProgram5_6 to disable event 0x4002 at OBT_AFTER_POWER_ON + 12
 
@@ -72,6 +72,26 @@ EmuGSS_TCProgram20_3_uint8 prog_FT_0100_step_4(FT_0100_TIME_step4,
 #define FT_0110_TIME_step4 (OBT_AFTER_POWER_ON + 40)
 #define FT_0110_TIME_step5 (OBT_AFTER_POWER_ON + 60)
 
+EmuGSS_TCProgram12_5_Limit_UINT8 prog_FT_0110_step_0(FT_0110_TIME_step0,
+		"FT_UAH_ASW_Monitoring_0110 step 0, Config PMODID 0 for monitoring PID 15 with limits [1,20]",
+		0, 15, 1, 2, 1, 0x4001, 20, 0x4002);
+
+EmuGSS_TCProgram12_1 prog_FT_0110_step_1(FT_0110_TIME_step1,
+		"FT_UAH_ASW_Monitoring_0110 step 1, Enable Monitoring PMODID 0", 0);
+
+EmuGSS_TCProgram5_6 prog_FT_0110_step2(FT_0110_TIME_step2
+,"FT_SOLO_EPD_ICU_SERV_05_0110_Step2, Deshabilita EvID 0x4002 "
+   , 0x4002   );
+
+
+EmuGSS_TCProgram20_3_uint8 prog_FT_0110_step_3(FT_0110_TIME_step3,
+		"FT_UAH_ASW_Monitoring_0110 step 3, Update PID 15 to 99", 15, 99);
+
+EmuGSS_TCProgram20_3_uint8 prog_FT_0110_step_4(FT_0110_TIME_step4,
+		"FT_UAH_ASW_Monitoring_0110 step 4, Update PID 15 to 5", 15, 5);
+
+EmuGSS_TCProgram20_3_uint8 prog_FT_0110_step_5(FT_0110_TIME_step5,
+		"FT_UAH_ASW_Monitoring_0110 step 4, Update PID 15 to 0", 15, 0);
 
 #endif
 

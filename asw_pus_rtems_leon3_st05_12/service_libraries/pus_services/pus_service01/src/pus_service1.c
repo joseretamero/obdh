@@ -104,8 +104,14 @@ tc_accept_report_t pus_service1_tc_acceptation(tc_handler_t *ptc_handler) {
 				}
 				break;
 
-				//TODO 09   Accept ST[05] & ST[12] TCs
+				//DONE 09   Accept ST[05] & ST[12] TCs
+				case (5):
 
+					break;
+
+				case (12):
+
+					break;
 
 
 			case (20):

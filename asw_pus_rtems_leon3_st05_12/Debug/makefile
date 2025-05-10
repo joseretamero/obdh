@@ -46,8 +46,6 @@ RM := rm -rf
 -include asw/components/cchk_fdirmng/src/subdir.mk
 -include asw/components/ccbkgtcexec/src/subdir.mk
 -include subdir.mk
--include objects.mk
-
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(C++_DEPS)),)
 -include $(C++_DEPS)
@@ -91,7 +89,7 @@ all: main-build
 main-build: asw_pus_rtems_leon3_st05_12
 
 # Tool invocations
-asw_pus_rtems_leon3_st05_12: $(OBJS) $(USER_OBJS) makefile objects.mk $(OPTIONAL_TOOL_DEPS)
+asw_pus_rtems_leon3_st05_12: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
 	sparc-rtems-g++ -msoft-float -o "asw_pus_rtems_leon3_st05_12" $(OBJS) $(USER_OBJS) $(LIBS)

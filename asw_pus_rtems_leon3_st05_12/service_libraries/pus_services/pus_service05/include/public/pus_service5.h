@@ -48,7 +48,7 @@ extern "C" {
 //Medium Severity Anomaly EvIDs None
 #define PUS_5_MediumSeverityAnomalyEvents 0
 
-//TODO 02 Set number of TM[5,4] events to 3 for Ev 0x4001,0x4002,0x4003
+//DONE 02 Set number of TM[5,4] events to 3 for Ev 0x4001,0x4002,0x4003
 //High Severity Anomaly EvIDs 0x4001,0x4002,0x4003
 #define PUS_5_HighSeverityAnomalyEvents		3
 
